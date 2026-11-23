@@ -10,11 +10,11 @@ export default defineNuxtConfig({
     compatibilityVersion: 4
   },
   modules: [// '@vueuse/nuxt',
-  // 'nuxt-auth-utils',
-  '@pinia/nuxt', // 'nuxt-echarts',
-  'vuetify-nuxt-module', // '@nuxt/eslint',
-  'nuxt-icons', //'@nuxt/icon', // '@nuxt/test-utils/module',
-  '@nuxtjs/i18n', 'nuxt-svgo', 'nuxt-snackbar', '@vite-pwa/nuxt', '@nuxt/icon'],
+    // 'nuxt-auth-utils',
+    '@pinia/nuxt', // 'nuxt-echarts',
+    'vuetify-nuxt-module', // '@nuxt/eslint',
+    'nuxt-icons', //'@nuxt/icon', // '@nuxt/test-utils/module',
+    '@nuxtjs/i18n', 'nuxt-svgo', 'nuxt-snackbar', '@vite-pwa/nuxt', '@nuxt/icon'],
   // spaLoadingTemplate: false,
   // extends: ['~/lib/features/home'],
   css: ['~/assets/styles/index.css'],
@@ -80,18 +80,20 @@ export default defineNuxtConfig({
     injectRegister: "auto",
     injectManifest: {
       globPatterns: ['**/*.{js,json,css,html,txt,svg,png,ico,webp,woff,woff2,ttf,eot,otf}'],
+      maximumFileSizeToCacheInBytes: 10485760,
     },
     includeManifestIcons: true,
     workbox: {
       globPatterns: ['**/*.{js,json,css,html,txt,svg,png,ico,webp,woff,woff2,ttf,eot,otf}'],
+      maximumFileSizeToCacheInBytes: 10485760,
     },
     registerType: 'autoUpdate',
     client: {
-      // installPrompt: true,
+      installPrompt: true,
       periodicSyncForUpdates: isDev ? 60 : 120,
     },
     devOptions: {
-      enabled: isDev,
+      enabled: true,
       suppressWarnings: isDev ? false : true,
       navigateFallback: '/',
       navigateFallbackAllowlist: [/^\/$/],
@@ -167,9 +169,27 @@ export default defineNuxtConfig({
   //     'VisualMapComponent',
   //   ],
   // },
+
   vite: {
-    build: { sourcemap: false },
+    worker: {
+      format: "es"
+    },
+    build: {
+      sourcemap: isDev,
+      commonjsOptions: {
+        dynamicRequireTargets: [
+          '~/workers/main.ts',
+        ],
+      },
+    },
+    optimizeDeps: {
+      exclude: ['@electric-sql/pglite']
+    },
+    server: {
+      allowedHosts: ["ktb.local"]
+    }
   },
+
   runtimeConfig: {
     github: {
       clientId: '',
@@ -181,5 +201,4 @@ export default defineNuxtConfig({
     },
   },
   ssr: false,
-  compatibilityDate: '2024-08-05',
 })

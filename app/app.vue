@@ -1,10 +1,23 @@
+<template>
+  <v-app>
+    <AppDrawer />
+    <SettingsDrawer />
+    <AppBar />
+    <v-main>
+      <VitePwaManifest />
+      <NuxtPage />
+      <NuxtSnackbar />
+    </v-main>
+    <!-- <AppFooter /> -->
+  </v-app>
+</template>
+
 <script setup lang="ts">
 const theme = useTheme()
 const route = useRoute()
 const title = computed(() => {
   return route.meta?.title || route.matched[0].meta?.title || ''
 })
-useAppStore().earlyInit()
 
 useHead({
   title,
@@ -20,31 +33,12 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
+onMounted(() => {   
 
-onMounted(() => { 
-  //  theme.global.name.value = 'dark'
-   theme.global.name.value = 'light'
-
-  // navigator.serviceWorker.addEventListener("controllerchange", (event) => {
-  //   console.log('ev: ', event);
-    
-  // });
 })
 </script>
 
-<template>
-  <v-app>
-    <AppDrawer />
-    <SettingsDrawer />
-    <AppBar />
-    <v-main>
-      <VitePwaManifest />
-      <NuxtPage />
-      <NuxtSnackbar />
-    </v-main>
-    <!-- <AppFooter /> -->
-  </v-app>
-</template>
+
 
 <style scoped>
 .v-main {

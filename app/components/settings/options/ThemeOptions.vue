@@ -6,24 +6,24 @@
         </div>
 
         <div>
-            <v-switch v-model="model"  hide-details inset></v-switch>
+            <v-switch v-model="darkMode" hide-details inset></v-switch>
         </div>
     </div>
-
-
 </template>
 
 <script setup lang="ts">
-const { t } = useI18n()
 const theme = useTheme()
+const cfgStore = useConfigStore()
 
-
-const model = computed({
+const darkMode = computed({
     get() {
-        return theme.global.name.value === 'dark'
+        const val = cfgStore.config?.dark_mode
+        val ? theme.change("dark") : theme.change("light")
+        return cfgStore.config?.dark_mode
     },
-    set(value) {
-        theme.global.name.value = value ? 'dark' : 'light'
+    set(val: boolean) {
+        cfgStore.setConfig({dark_mode: val})
+        val ? theme.change("dark") : theme.change("light")
     }
 })
 

@@ -2,13 +2,13 @@
 import quranSurahs from "~/assets/quran-surahs.json"
 import type { Surah } from "~/models/surah/surah_model";
 import type { MarkedAyahData } from "~/models/ayah/ayah_model";
-import CustomStorage from "./custom_storage";
+import CustomStorage from "./lstore";
 import { SURA_IDS } from "./enums/surahs_ids"
 import { type Store } from "pinia"
 // const snackbar = useSnackbar();
 
-export function uSleep(seconds: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+export function uSleep(milliseconds: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 export function uGetSurahsUrls(): string[] {
@@ -115,14 +115,14 @@ export async function uGoToAyah(ayahNumber: number, surahNumber: number, appStor
     if (appStore.loadedSurah?.number === surahNumber) {
         uScrollToAyah(ayahNumber)
         uGlowAyah(ayahNumber)
-        await uSleep(2)
+        await uSleep(2000)
         uUnglowAyah(ayahNumber)
       } else {
         await appStore.loadSurah(surahNumber)
-        await uSleep(0.5)
+        await uSleep(500)
         uScrollToAyah(ayahNumber)
         uGlowAyah(ayahNumber)
-        await uSleep(2)
+        await uSleep(2000)
         uUnglowAyah(ayahNumber)
       }
 }

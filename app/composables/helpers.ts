@@ -1,7 +1,11 @@
+import type { IService } from "~/models/locator/locator_iservice"
+import type Locator from "~/services/locator"
 
-// get ayah number from html target attribute 
-export function useGetAyahNrFromTarget(target?: HTMLElement): number {
-  console.log(target);
-  
-  return Number(target!.getAttribute("kbt-ayah-nr"))
+export const useSGet = <T extends IService>(ServiceType: new (...args: any[]) => T): T => {
+  const sl = (window as any)["sl"] as Locator
+  const service = sl.get(ServiceType)
+  if (service === null) {
+    throw new Error(`Service not found for identifier: ${ServiceType.name}`)
+  }
+  return service
 }

@@ -1,32 +1,20 @@
 <template>
   <v-container>
     <QuranSearch />
-
-    <!-- <v-btn @click="test_worker">test worker</v-btn> -->
-    <!-- <v-text-field v-model="term" @input="debouncedFn"></v-text-field> -->
     <div v-if="true">
       <v-row>
         <v-col md="10">
-          <v-chip v-if="appStore.loadedSurah" class="mx-1" label size="small">
-            {{ appStore.loadedSurah?.name }}
-          </v-chip>
-          
-          <template v-if="!appStore.loadedSurah" >
+          <template v-if="!appStore.loadedSurah">
             <div class="mx-10">
               <br><br>
-                <h5>جاري تحميل التطبيق...</h5>
-                <br>
-                <v-progress-linear
-              color="orange"
-              height="6"
-              indeterminate
-              rounded
-            ></v-progress-linear>
-
+              <h5>جاري تحميل التطبيق...</h5>
+              <br>
+              <v-progress-linear color="orange" height="6" indeterminate rounded></v-progress-linear>
             </div>
-            </template>
+          </template>
 
-          <div v-else class="reading-card mx-0 mt-3" :style="{'background-color': theme.global.name.value == 'light' ? '#dfdfdf': '#2d2d2d'}">
+          <div v-else class="reading-card mx-0"
+            :style="{ 'background-color': cfgStore.config?.dark_mode ? '#2d2d2d' : '#dfdfdf' }">
             <h3
               v-if="appStore.loadedSurah?.number !== 9 && appStore.loadedSurah && !appStore.loading && appStore.loadedSurah?.number !== 500"
               class="text-center mb-3 mt-5" style="font-family: Kitab; font-size: 25px;">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ
@@ -36,8 +24,8 @@
             <v-skeleton-loader v-if="appStore.loading" class="mx-auto border" type="article"></v-skeleton-loader>
 
             <template v-if="appStore.loadedSurah && !appStore.loading" v-for="ayah, idx in appStore.loadedSurah.ayahs"
-              :key="ayah.numberInSurah">
-              <Ayah @click="openAyahMenu(ayah, $event)" :ayah="ayah" :font-size="appStore.fontSize" />
+              :key="ayah.number_in_surah">
+              <Ayah :idx="idx" :ayah="ayah" :font-size="appStore.fontSize" />
             </template>
           </div>
         </v-col>
@@ -49,69 +37,39 @@
 
 <script setup lang="ts">
 import { useAppStore } from "~/stores/app_store"
-import { useDebounceFn } from '@vueuse/core'
 
-import type { Ayah } from "~/models/ayah/ayah_model"
-import type { MenuItem } from "~/models/custom-menu/menu_item_model"
 
 const theme = useTheme()
-const snackbar = useSnackbar()
 const appStore = useAppStore()
-const { $event } = useNuxtApp()
+const cfgStore = useConfigStore()
 
-const loadCounter = toRef(appStore.wwLink.api.loadCounter)
-async function showit() {
-  console.log(await appStore.wwLink.api.loadCounter);
-  
+
+async function create_db() {
+
 }
 
-const ayahOptions = [
-  {
-    title: "وضع علامة هنا",
-    subtitle: "لاستكمال القرائة من هنا بعد فتح التطبيق",
-    appendIcon: "subway:mark-2"
+async function test_db() {
+  let term = 'تبارك الذي بي'
+  let res = await db.query(`
+
+
+      -- 2) Trigram similarity search on raw text (fuzzy matching / paraphrase)
+      SELECT 'trgm' AS method, number, imlaei_simple_text, similarity(imlaei_simple_text, '${term}') AS sim
+      FROM ayah
+      WHERE similarity(imlaei_simple_text, '${term}') > 0.15
+      ORDER BY sim DESC;
+
+
+  `, )
+
+  for (let row of res.rows) {
+    console.log(`txt: ${row.imlaei_simple_text} | rank: ${row.rank} | sim: ${row.sim}`)
   }
-]
 
-const debouncedFn = useDebounceFn((event) => {
-  search_surah(event)
-}, 1000)
-
-
-async function openAyahMenu(ayah: Ayah, event: PointerEvent) {
-
-  // TODO: Clean up this mess
-  let items: MenuItem[] = []
-
-  for (let ayahOption of ayahOptions) {
-    items.push({
-      label: ayahOption.title,
-      subtitle: ayahOption.subtitle,
-      icon: 'subway:mark-2',
-      itemCB: async () => {
-        uMarkAyah(ayah.numberInSurah, appStore.loadedSurah?.number!)
-        // uGlowAyah(ayah.numberInSurah)
-        snackbar.add({ type: 'success', text: `تم حفض العلامة للاية (${ayah.numberInSurah})` })
-      }
-    })
-  }
-  $event("custom-menu", {
-    items: items,
-    target: event,
-    openCB: function () {
-      return uGlowAyah(ayah.numberInSurah)
-    },
-    closeCB: async function () {
-      return uUnglowAyah(ayah.numberInSurah)
-    }
-  })
+  console.log(res)
 }
 
-async function test_worker() {
-
-}
 onMounted(async () => {
-
 })
 
 </script>
@@ -122,17 +80,9 @@ onMounted(async () => {
   padding: 10px;
   height: calc(100vh - 180px) !important;
   overflow-y: scroll;
+  -webkit-overflow-scrolling: auto;
+  scroll-behavior: smooth;
   border-radius: 8px;
-  /* scrollbar-width: thin; */
-  /* scrollbar-color: orange, orange; */
-  /* height: calc(100vh - 300px) !important; */
-  /* background-color: red; */
-  /* display: flex; */
-  /* flex-direction: row; */
-  /* justify-content: start; */
-  /* flex-flow: wrap; */
-  /* word-break: normal; */
-  /* word-spacing: -1px; */
   text-align: justify;
   text-justify: inter-word;
 }
